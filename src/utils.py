@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import json
 
 def plot_easyocr_boxes(image_path, ocr_result):
     """
@@ -33,3 +34,26 @@ def get_plot(image_path, ocr_result):
         cv2.polylines(image, [box], isClosed=True, color=(0, 255, 0), thickness=2)
 
     return image
+
+
+def easyocr_to_json(ocr_result):
+    """
+    Converts EasyOCR output to a JSON-serializable structure.
+
+    Args:
+        ocr_result (list): Output from easyocr.Reader().readtext()
+
+    Returns:
+        list: List of dicts with 'text' and 'bbox' keys.
+    """
+    output = []
+    for detection in ocr_result:
+        box, text, score = detection
+        bbox = [[int(point[0]), int(point[1])] for point in box]  # convert np.int32 to int
+        output.append({
+            "text": text,
+            "bbox": bbox,
+            "confidence": float(score)
+        })
+    return output
+
