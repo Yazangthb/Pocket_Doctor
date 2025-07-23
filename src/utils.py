@@ -57,6 +57,80 @@ def easyocr_to_json(ocr_result):
         })
     return output
 
+def easyocr_to_text(ocr_result):
+    """
+    Converts EasyOCR output to a plain text string without bbox or confidence info.
+
+    Args:
+        ocr_result (list): Output from easyocr.Reader().readtext()
+
+    Returns:
+        str: Concatenated text from OCR results.
+    """
+    lines = []
+    for detection in ocr_result:
+        _, text, _ = detection
+        if text.strip():  # Optional: skip empty strings
+            lines.append(text.strip())
+    return "\n".join(lines)
+
+def easyocr_to_structured_text(ocr_result, line_threshold=15, space_scale=10):
+    """
+    Converts EasyOCR output to structured text with layout preserved.
+
+    Args:
+        ocr_result (list): EasyOCR output [(bbox, text, confidence), ...]
+        line_threshold (int): Max vertical distance between words on the same line
+        space_scale (int): Number of pixels per space character
+
+    Returns:
+        str: Visually structured plain text
+    """
+    import numpy as np
+
+    # Prepare list of entries with avg y and x positions
+    entries = []
+    for bbox, text, _ in ocr_result:
+        x_coords = [p[0] for p in bbox]
+        y_coords = [p[1] for p in bbox]
+        avg_y = sum(y_coords) / len(y_coords)
+        avg_x = min(x_coords)
+        entries.append({'text': text, 'y': avg_y, 'x': avg_x})
+
+    # Sort entries top to bottom
+    entries.sort(key=lambda x: x['y'])
+
+    # Group by lines
+    lines = []
+    current_line = []
+    last_y = None
+
+    for entry in entries:
+        if last_y is None or abs(entry['y'] - last_y) <= line_threshold:
+            current_line.append(entry)
+        else:
+            lines.append(current_line)
+            current_line = [entry]
+        last_y = entry['y']
+    if current_line:
+        lines.append(current_line)
+
+    # Sort each line left to right, and format with indentation
+    output_lines = []
+    for line in lines:
+        line.sort(key=lambda x: x['x'])
+        line_text = ''
+        last_x = 0
+        for word in line:
+            spaces = int((word['x'] - last_x) / space_scale)
+            line_text += ' ' * max(spaces, 1) + word['text']
+            last_x = word['x'] + len(word['text']) * space_scale // 2  # Estimate next start
+        output_lines.append(line_text.strip())
+
+    return '\n'.join(output_lines)
+
+
+
 from PIL import Image, ImageDraw, ImageFont
 
 def plot_easyocr_boxes(image_path, ocr_result):
