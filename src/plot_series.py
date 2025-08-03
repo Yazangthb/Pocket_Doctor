@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from extract_series import extract_parameters_over_reports
 import json
+import sys
 
 def plot_all_parameters_single_chart(param_dict):
     num_reports = len(next(iter(param_dict.values())))
@@ -25,10 +26,16 @@ def plot_all_parameters_single_chart(param_dict):
     plt.tight_layout()
     plt.show()
 
-# Example usage
 if __name__ == "__main__":
+    # Default file path
     file_path = "combined_report_analysis.txt"
+
+    # Use the provided argument if available
+    if len(sys.argv) > 1:
+        file_path = sys.argv[1]
+
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+
     result = extract_parameters_over_reports(data)
     plot_all_parameters_single_chart(result)
