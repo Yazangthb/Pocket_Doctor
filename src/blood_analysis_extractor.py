@@ -46,14 +46,18 @@ Respond in this JSON format:
     )
     return response['choices'][0]['message']['content']
 
-def main(input_path_or_text):
+def main(input_path_or_text, output_path="output.txt"):
     text = read_text_input(input_path_or_text)
     result = analyze_blood_report(text)
-    print(result)
+    
+    # Save result to a .txt file
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(result)
+
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
         print("Usage: python blood_analysis_extractor.py <path_to_txt_or_text>")
     else:
-        main(sys.argv[1])
+        main(sys.argv[1], "LLM_output/report_analysis.txt")

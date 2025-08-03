@@ -6,7 +6,7 @@ def load_reader(lang_list=None):
     """
     if lang_list is None:
         lang_list = ['ru']
-    return easyocr.Reader(lang_list)
+    return easyocr.Reader(lang_list, gpu=False)
 
 def read_text(reader, image_path):
     """
