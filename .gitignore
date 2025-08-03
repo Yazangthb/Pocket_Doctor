@@ -70,3 +70,22 @@ Desktop.ini
 
 # Optional: exclude a specific image folder (e.g., keep 'assets/images/')
 # !assets/images/*
+
+# Ignore document and web files
+*.pdf
+*.xls
+*.xlsx
+*.json
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.rtf
+*.html
+*.htm
+*.xml
+*.csv
+*.odt
+*.odp
+*.txt
+*.ods
