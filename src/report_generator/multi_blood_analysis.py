@@ -45,7 +45,8 @@ def analyze_multiple_blood_reports(report_dict):
             }},
             ...
         ],
-        "summary": "Brief summary for this report"
+        "summary": "Brief summary for this report",
+        "general_health_score": 87.0
         }},
         ...
     ],

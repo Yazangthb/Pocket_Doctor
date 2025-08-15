@@ -28,5 +28,5 @@ def main(file_path):
 
 # Example usage
 if __name__ == "__main__":
-    file_path = "combined_report_analysis.txt"  # Change this to your actual file path
+    file_path = "report_generator/combined_report_analysis.txt"  # Change this to your actual file path
     main(file_path)

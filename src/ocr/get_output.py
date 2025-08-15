@@ -1,5 +1,5 @@
-from ocr_reader import load_reader, read_text
-from utils import get_plot, easyocr_to_json
+from Pocket_Doctor.src.ocr.ocr_reader import load_reader, read_text
+from Pocket_Doctor.src.ocr.utils import get_plot, easyocr_to_json
 
 
 def get_output(image_path):

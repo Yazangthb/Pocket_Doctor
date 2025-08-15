@@ -28,7 +28,7 @@ def plot_all_parameters_single_chart(param_dict):
 
 if __name__ == "__main__":
     # Default file path
-    file_path = "combined_report_analysis.txt"
+    file_path = "report_generator/combined_report_analysis.txt"
 
     # Use the provided argument if available
     if len(sys.argv) > 1:
