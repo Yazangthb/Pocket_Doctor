@@ -16,7 +16,7 @@ conda activate <env-name>
 2. run the script after modifying paths in main.py
 ```bash
    cd src
-   python main.py
+   python ocr/main.py
 ```
 
 
@@ -25,7 +25,8 @@ conda activate <env-name>
 After obtaining the OCR output, you can analyze it using an LLM to extract structured insights:
 
 ```bash
-python blood_analysis_test.py path/to/ocr_output.txt
+cd src
+python report_generator/blood_analysis_test.py path/to/ocr_output.txt
 ```
 
 ## Running Multi-Report Analysis
@@ -33,7 +34,8 @@ python blood_analysis_test.py path/to/ocr_output.txt
 To perform analysis on multiple reports and optionally specify a directory of LLM output `.txt` files:
 
 ```bash
-python mutli_blood_analysis.py [optional_path/to/dir_with_LLM_output_txt_files]
+cd src
+python report_generator/mutli_blood_analysis.py [optional_path/to/dir_with_LLM_output_txt_files]
 ```
 
 If no directory is provided, the default one will be used.
@@ -43,7 +45,18 @@ If no directory is provided, the default one will be used.
 To visualize trends in values across multiple reports:
 
 ```bash
-python plot_series.py path/to/combined_report_analysiss.txt
+cd src
+python plots/plot_seperate_params.py
 ```
 
-This will generate plots showing the changes in various blood test parameters over time.
+This will generate plots in dirs "plots/figures/normal or extreme" showing the changes in various blood test parameters over time.
+
+To visualize trends in general health score across reports:
+
+```bash
+cd src
+python plots/plot_health_score.py
+```
+
+This will generate a time based plot on the general health score.
+
