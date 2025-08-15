@@ -2,9 +2,9 @@ import json
 from ocr_reader import load_reader, read_text
 from utils import plot_easyocr_boxes, easyocr_to_json, easyocr_to_text, easyocr_to_structured_text
 
-IMAGE_PATH = 'images/1.jpg'
-OUTPUT_JSON = 'ocr/output/ocr_result1.json'
-OUTPUT_TEXT = 'ocr/output/ocr_text1.txt'
+IMAGE_PATH = 'images/2.jpg'
+OUTPUT_JSON = 'ocr/output/ocr_result2.json'
+OUTPUT_TEXT = 'ocr/output/ocr_text2.txt'
 
 def main():
     # Load OCR reader for Russian language
