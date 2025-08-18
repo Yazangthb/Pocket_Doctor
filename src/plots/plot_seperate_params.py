@@ -5,13 +5,24 @@ import json
 import sys
 
 # Reference normal ranges — adjust as needed
+# Reference normal ranges — adjust as needed (adult ranges)
 NORMAL_RANGES = {
-    "Hemoglobin": (13.5, 17.5),
-    "LDL": (1.5, 3.5),
-    "HDL": (1.0, 1.6),
-    "Glucose": (3.5, 5.5),
-    "CRP": (0.0, 3.0)
+    "Hemoglobin": (13.5, 17.5),                    # g/dL (men), 12.0–15.5 (women) – pick average
+    "White Blood Cells": (4.0, 10.0),              # x10^3/uL
+    "Red Blood Cells": (4.2, 5.9),                 # M/uL (men), 3.9–5.0 (women)
+    "Platelets": (150, 450),                       # x10^3/uL
+    "Hematocrit": (38, 50),                        # % (men), 34–45 (women)
+    "Mean Corpuscular Volume": (80, 100),          # fL
+    "Mean Corpuscular Hemoglobin": (27, 33),       # pg
+    "Mean Corpuscular Hemoglobin Concentration": (32, 36),  # g/dL
+    "Red Cell Distribution Width": (11.5, 14.5),   # %
+    # Lipids, glucose, inflammation markers
+    "LDL": (1.5, 3.5),                             # mmol/L
+    "HDL": (1.0, 1.6),                             # mmol/L
+    "Glucose": (3.5, 5.5),                         # mmol/L
+    "CRP": (0.0, 3.0)                              # mg/L
 }
+
 
 def plot_parameters_separately(param_dict):
     normal_dir = os.path.join("plots", "figures", "normal")
@@ -28,29 +39,48 @@ def plot_parameters_separately(param_dict):
         x = list(range(1, num_reports + 1))
 
         lower, upper = NORMAL_RANGES.get(param, (None, None))
-        if lower is not None and upper is not None:
-            is_extreme = any(
-                (v is not None) and (v < lower or v > upper)
-                for v in numeric_values
-            )
-        else:
-            is_extreme = False
+        outliers, normals = [], []
 
-        color = 'red' if is_extreme else 'green'
+        for xi, v in zip(x, numeric_values):
+            if v is None:
+                continue
+            if lower is not None and upper is not None and (v < lower or v > upper):
+                outliers.append((xi, v))
+            else:
+                normals.append((xi, v))
+
+        # A parameter is considered extreme if it has at least one outlier
+        is_extreme = len(outliers) > 0
         save_dir = extreme_dir if is_extreme else normal_dir
 
         plt.figure(figsize=(8, 5))
-        plt.plot(x, numeric_values, marker='o', color=color, label=param)
 
-        # Plot normal boundaries if available
+        # Always show shaded normal range + thresholds
         if lower is not None and upper is not None:
-            plt.axhline(y=lower, color='gray', linestyle='--', linewidth=1, label='Lower Bound')
-            plt.axhline(y=upper, color='gray', linestyle='--', linewidth=1, label='Upper Bound')
+            plt.axhspan(lower, upper, color='lightgreen', alpha=0.25, label="Normal Range")
+            plt.axhline(y=lower, color='blue', linestyle='--', linewidth=1.2, label="Lower Threshold")
+            plt.axhline(y=upper, color='blue', linestyle='--', linewidth=1.2, label="Upper Threshold")
+
+        # Plot normal values
+        if normals:
+            plt.plot(
+                [p[0] for p in normals],
+                [p[1] for p in normals],
+                marker='o', color='green', linewidth=2, markersize=8, label=f"{param} (Normal)"
+            )
+
+        # Plot outliers in red
+        if outliers:
+            plt.plot(
+                [p[0] for p in outliers],
+                [p[1] for p in outliers],
+                marker='o', color='red', linewidth=2, markersize=10, label=f"{param} (Outlier)"
+            )
 
         plt.xlabel("Report Index")
         plt.ylabel("Value")
         plt.title(f"{param} Trend")
-        plt.grid(True)
+        plt.grid(True, linestyle=":", alpha=0.7)
         plt.legend(loc="best")
         plt.tight_layout()
 
@@ -63,7 +93,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
 
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     result = extract_parameters_over_reports(data)
