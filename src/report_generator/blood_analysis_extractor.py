@@ -10,7 +10,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Reference norms: replace with actual clinical values
 NORMAL_RANGES = {
-    "Hemoglobin": {"mean": 14.0, "sd": 1.0, "unit": "g/dL"},
+    "Hemoglobin": {"mean": 140.0, "sd": 10.0, "unit": "g/dL"},
     "LDL": {"mean": 2.5, "sd": 0.8, "unit": "mmol/L"},
     "HDL": {"mean": 1.3, "sd": 0.3, "unit": "mmol/L"},
     "Glucose": {"mean": 5.0, "sd": 0.5, "unit": "mmol/L"},

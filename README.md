@@ -26,7 +26,7 @@ After obtaining the OCR output, you can analyze it using an LLM to extract struc
 
 ```bash
 cd src
-python report_generator/blood_analysis_test.py path/to/ocr_output.txt
+python report_generator/blood_analysis_extractor.py path/to/ocr_output.txt
 ```
 
 ## Running Multi-Report Analysis
