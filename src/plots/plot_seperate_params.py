@@ -6,7 +6,7 @@ import sys
 
 # Reference normal ranges — adjust as needed (adult ranges)
 NORMAL_RANGES = {
-    "Hemoglobin": (13.5, 17.5),
+    "Hemoglobin": (135, 175),
     "White Blood Cells": (4.0, 10.0),
     "Red Blood Cells": (4.2, 5.9),
     "Platelets": (150, 450),
