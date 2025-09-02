@@ -62,7 +62,10 @@ def compute_health_score(parameters):
         val, unit = normalize_value(name, p["value"], p["unit"])
         info = NORMAL_RANGES.get(name)
         if info:
-            z = abs((val - info["mean"]) / info["sd"])
+            sd = info["sd"]
+            if sd == 0:  # avoid division by zero
+                continue
+            z = abs((val - info["mean"]) / sd)
             scores.append(z)
     if not scores:
         return None
@@ -70,34 +73,47 @@ def compute_health_score(parameters):
     health_score = max(0, 100 - avg_abs_z * 10)
     return round(health_score, 1)
 
+
 def analyze_blood_report(text):
+    # Build mapping of expected units from NORMAL_RANGES
+    expected_units = {name: info["unit"] for name, info in NORMAL_RANGES.items()}
+
+    unit_instructions = "\n".join([
+        f"- {name}: always report in {unit}"
+        for name, unit in expected_units.items()
+    ])
+    print(unit_instructions)
     prompt = f"""
-You are a medical assistant AI.
-The user has provided a blood test report that may be written in Russian.
-Translate any medical terms or parameter names into English, but keep original numeric values and units.
+        You are a medical assistant AI.
+        The user has provided a blood test report that may be written in Russian.
 
-Tasks:
-1. Extract all blood analysis parameters into JSON with English field names, original numeric values, and units.
-2. Extract the date of the report (if present).
-3. Extract the gender of the patient (if present).
-4. Summarize the likely medical situation (e.g., anemia, infection, normal).
-5. Suggest when the patient should schedule a follow-up.
+        Your job is to extract and normalize the data.
 
-Respond ONLY in valid JSON with this format:
-{{
-  "report_date": "YYYY-MM-DD or null",
-  "gender": "Male/Female/Unknown",
-  "parameters": [
-    {{ "name": "Hemoglobin", "value": 13.2, "unit": "g/L" }},
-    ...
-  ],
-  "summary": "Your summary in English"
-}}
+        Tasks:
+        1. Extract all blood analysis parameters into JSON with English field names.
+        2. For each parameter, convert and output the value in the expected unit system.
+        Use ONLY these units (convert if necessary):
+        {unit_instructions}
+        3. Extract the date of the report (if present).
+        4. Extract the gender of the patient (if present).
+        5. Summarize the likely medical situation (e.g., anemia, infection, normal).
+        6. Suggest when the patient should schedule a follow-up.
 
-Here is the report:
-{text}
+        Respond ONLY in valid JSON with this format:
+        {{
+        "report_date": "YYYY-MM-DD or null",
+        "gender": "Male/Female/Unknown",
+        "parameters": [
+            {{ "name": "Hemoglobin", "value": 135, "unit": "g/L" }},
+            ...
+        ],
+        "summary": "Your summary in English"
+        }}
 
-"""
+        Here is the report:
+        {text}
+    """
+
     res = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
@@ -110,6 +126,7 @@ Here is the report:
         return json.loads(content)
     except json.JSONDecodeError as e:
         raise ValueError(f"Model did not return valid JSON. Error: {e}\nResponse:\n{content}")
+
 
 def main(input_path_or_text, output_path="output.txt"):
     text = read_text_input(input_path_or_text)
