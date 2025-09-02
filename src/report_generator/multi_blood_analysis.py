@@ -21,7 +21,7 @@ def analyze_multiple_blood_reports(report_dict):
     report_blocks = "\n\n".join([f"Report: {name}\n{content}" for name, content in report_dict.items()])
 
     prompt = f"""
-    You are a medical assistant AI. A user has provided multiple blood test reports. Each report is from a different day or individual. 
+    You are a medical assistant AI. A user has provided multiple blood test reports. Each report is from a different day. 
 
     Your tasks:
     1. For each report, extract:
