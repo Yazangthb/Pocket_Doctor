@@ -2,3 +2,5 @@ easyocr
 opencv-python
 matplotlib
 numpy
+openai==0.28
+dotenv
