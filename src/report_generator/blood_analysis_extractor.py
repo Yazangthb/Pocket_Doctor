@@ -10,12 +10,39 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Reference norms: replace with actual clinical values
 NORMAL_RANGES = {
-    "Hemoglobin": {"mean": 140.0, "sd": 10.0, "unit": "g/dL"},
+    "Hemoglobin": {"mean": 135.0, "sd": 7.0, "unit": "g/L"},
+    "White Blood Cells": {"mean": 6.6, "sd": 1.3, "unit": "10^9/L"},
+    "Red Blood Cells": {"mean": 4.35, "sd": 0.25, "unit": "10^12/L"},
+    "Platelets": {"mean": 272.5, "sd": 57.0, "unit": "10^9/L"},
+    "Hematocrit": {"mean": 39.5, "sd": 2.4, "unit": "%"},
+    "Mean Corpuscular Volume": {"mean": 90.7, "sd": 4.7, "unit": "fL"},
+    "Mean Corpuscular Hemoglobin": {"mean": 29.8, "sd": 1.9, "unit": "pg"},
+    "Mean Corpuscular Hemoglobin Concentration": {"mean": 322.0, "sd": 8.0, "unit": "g/L"},
+    "Red Cell Distribution Width": {"mean": 13.4, "sd": 1.1, "unit": "%"},
+    "Blasts": {"mean": 0.0, "sd": 0.0, "unit": "%"},
+    "Promyelocytes": {"mean": 0.0, "sd": 0.0, "unit": "%"},
+    "Myelocytes": {"mean": 0.0, "sd": 0.0, "unit": "%"},
+    "Metamyelocytes": {"mean": 0.0, "sd": 0.0, "unit": "%"},
+    "Band Neutrophils": {"mean": 3.0, "sd": 1.0, "unit": "%"},
+    "Segmented Neutrophils": {"mean": 55.5, "sd": 7.0, "unit": "%"},
+    "Lymphocytes": {"mean": 33.5, "sd": 6.7, "unit": "%"},
+    "Monocytes": {"mean": 7.5, "sd": 1.8, "unit": "%"},
+    "Eosinophils": {"mean": 5.0, "sd": 2.5, "unit": "%"},
+    "Basophils": {"mean": 1.0, "sd": 0.5, "unit": "%"},
+    "Plasma Cells": {"mean": 0.0, "sd": 0.0, "unit": "%"},
+    "Absolute Neutrophils": {"mean": 3.91, "sd": 1.1, "unit": "10^9/L"},
+    "Absolute Lymphocytes": {"mean": 2.27, "sd": 0.44, "unit": "10^9/L"},
+    "Absolute Monocytes": {"mean": 0.48, "sd": 0.12, "unit": "10^9/L"},
+    "Absolute Eosinophils": {"mean": 0.30, "sd": 0.15, "unit": "10^9/L"},
+    "Absolute Basophils": {"mean": 0.045, "sd": 0.02, "unit": "10^9/L"},
+    "Mean Platelet Volume": {"mean": 10.8, "sd": 0.6, "unit": "fL"},
+    "ESR": {"mean": 15.0, "sd": 7.5, "unit": "mm/h"},
     "LDL": {"mean": 2.5, "sd": 0.8, "unit": "mmol/L"},
     "HDL": {"mean": 1.3, "sd": 0.3, "unit": "mmol/L"},
     "Glucose": {"mean": 5.0, "sd": 0.5, "unit": "mmol/L"},
     "CRP": {"mean": 1.0, "sd": 0.5, "unit": "mg/L"},
 }
+
 
 def read_text_input(path_or_text):
     if os.path.exists(path_or_text):
@@ -48,19 +75,20 @@ def analyze_blood_report(text):
 You are a medical assistant AI.
 The user has provided a blood test report that may be written in Russian.
 Translate any medical terms or parameter names into English, but keep original numeric values and units.
-Perform the analysis as if the report were in English.
-
-
 
 Tasks:
 1. Extract all blood analysis parameters into JSON with English field names, original numeric values, and units.
-2. Summarize the likely medical situation (e.g., anemia, infection, normal).
-3. Suggest when the patient should schedule a follow-up.
+2. Extract the date of the report (if present).
+3. Extract the gender of the patient (if present).
+4. Summarize the likely medical situation (e.g., anemia, infection, normal).
+5. Suggest when the patient should schedule a follow-up.
 
 Respond ONLY in valid JSON with this format:
 {{
+  "report_date": "YYYY-MM-DD or null",
+  "gender": "Male/Female/Unknown",
   "parameters": [
-    {{ "name": "Hemoglobin", "value": 13.2, "unit": "g/dL" }},
+    {{ "name": "Hemoglobin", "value": 13.2, "unit": "g/L" }},
     ...
   ],
   "summary": "Your summary in English"
@@ -77,7 +105,6 @@ Here is the report:
     )
 
     content = res['choices'][0]['message']['content']
-    # print("DEBUG RAW RESPONSE:\n", content)
 
     try:
         return json.loads(content)
